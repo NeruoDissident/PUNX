@@ -445,75 +445,24 @@ function initializeGraph(nodes, edges) {
   );
 
 
-  // Ctrl+drag to move cluster (multi-cluster mode)
-  let isDraggingCluster = false;
-  let dragStartPos = null;
-  let clusterNodes = [];
-  let dragClusterColor = null;
+  // Enable cluster dragging via clusterControl utility
+  function getClusterNodesForDrag(draggedNode) {
+    const nodeId = draggedNode.id();
+    const memberships = nodeClusters[nodeId] || [];
+    if (memberships.length === 0) return [];
 
-  cy.on('grab', 'node', function(evt) {
-    if (evt.originalEvent && evt.originalEvent.ctrlKey) {
-      const draggedNode = evt.target;
-      
-      // Check if this node belongs to any cluster
-      const nodeId = draggedNode.id();
-      const nodeMemberships = nodeClusters[nodeId] || [];
-      
-      if (nodeMemberships.length > 0) {
-        // Find the most recent cluster this node belongs to
-        const targetCluster = nodeMemberships[nodeMemberships.length - 1];
-        const clusterIdx = targetCluster.clusterIdx;
-        
-        // Find all nodes in the same cluster
-        clusterNodes = [];
-        for (const [id, memberships] of Object.entries(nodeClusters)) {
-          if (memberships.some(m => m.clusterIdx === clusterIdx) && id !== nodeId) {
-            const node = cy.getElementById(id);
-            if (node.length > 0) {
-              clusterNodes.push(node);
-            }
-          }
-        }
-        
-        if (clusterNodes.length > 0) {
-          isDraggingCluster = true;
-          dragStartPos = draggedNode.position();
-          dragClusterColor = targetCluster.color;
-          
-          // Store relative positions
-          clusterNodes.forEach(n => {
-            n.scratch('_offset', {
-              x: n.position('x') - dragStartPos.x,
-              y: n.position('y') - dragStartPos.y
-            });
-          });
-          
-          console.log(`Dragging cluster ${clusterIdx} with ${clusterNodes.length + 1} nodes`);
-        }
+    const clusterIdx = memberships[memberships.length - 1].clusterIdx;
+    const nodes = [];
+    for (const [id, mships] of Object.entries(nodeClusters)) {
+      if (mships.some(m => m.clusterIdx === clusterIdx) && id !== nodeId) {
+        const n = cy.getElementById(id);
+        if (n.length) nodes.push(n);
       }
     }
-  });
+    return nodes;
+  }
 
-  cy.on('drag', 'node', function(evt) {
-    if (isDraggingCluster && dragStartPos) {
-      const node = evt.target;
-      const newPos = node.position();
-      clusterNodes.forEach(n => {
-        const offset = n.scratch('_offset');
-        n.position({ x: newPos.x + offset.x, y: newPos.y + offset.y });
-      });
-    }
-  });
-
-  cy.on('free', 'node', function(evt) {
-    if (isDraggingCluster) {
-      isDraggingCluster = false;
-      dragStartPos = null;
-      clusterNodes.forEach(n => n.removeScratch('_offset'));
-      clusterNodes = [];
-      dragClusterColor = null;
-    }
-  });
+  window.clusterControl.setupDrag(cy, getClusterNodesForDrag);
 
 
   // Hide info panel and clear highlights on background click
