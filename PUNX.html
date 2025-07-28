@@ -10,6 +10,7 @@
 <div id="searchContainer"><input id="searchInput" type="text" placeholder="Search node…"></div>
 <div id="infoPanel"></div>
 <div id="cy"></div>
+<div id="graph3d"></div>
 <script src="https://unpkg.com/cytoscape@3.23.0/dist/cytoscape.min.js"></script>
 <script src="https://unpkg.com/cytoscape-astar/cytoscape-astar.js"></script>
 <script src="data.js"></script>
@@ -17,6 +18,9 @@
 <script src="depthControl.js"></script>
 <script src="clusterControl.js"></script>
 <script src="showOnlyControl.js"></script>
+<script src="https://unpkg.com/three/build/three.min.js"></script>
+<script src="https://unpkg.com/3d-force-graph"></script>
+<script src="graph3d.js"></script>
 <script>
   // Wait for DOM and data.js to load, then initialize the graph
   window.addEventListener('DOMContentLoaded', function() {
