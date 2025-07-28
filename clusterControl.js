@@ -126,11 +126,56 @@ function setupClusterEvents(cy, nodeClusters, clusters, clusterColors, setFocuse
   });
 }
 
+// Generic utility to enable Ctrl+drag cluster movement
+// getClusterNodes should return an array of nodes belonging to the same cluster
+function setupClusterDrag(cy, getClusterNodes) {
+  let isDragging = false;
+  let dragStart = null;
+  let dragNodes = [];
+
+  cy.on('grab', 'node', function(evt) {
+    const orig = evt.originalEvent;
+    if (orig && orig.ctrlKey) {
+      dragNodes = getClusterNodes(evt.target) || [];
+      if (dragNodes.length > 0) {
+        isDragging = true;
+        dragStart = evt.target.position();
+        dragNodes.forEach(n => {
+          n.scratch('_offset', {
+            x: n.position('x') - dragStart.x,
+            y: n.position('y') - dragStart.y
+          });
+        });
+      }
+    }
+  });
+
+  cy.on('drag', 'node', function(evt) {
+    if (isDragging && dragStart) {
+      const pos = evt.target.position();
+      dragNodes.forEach(n => {
+        const offset = n.scratch('_offset');
+        if (offset) n.position({ x: pos.x + offset.x, y: pos.y + offset.y });
+      });
+    }
+  });
+
+  cy.on('free', 'node', function() {
+    if (isDragging) {
+      dragNodes.forEach(n => n.removeScratch('_offset'));
+      dragNodes = [];
+      isDragging = false;
+      dragStart = null;
+    }
+  });
+}
+
 window.clusterControl = {
   show: showClusterButton,
   hide: hideClusterButton,
   createCluster: createCluster,
   setupEvents: setupClusterEvents,
+  setupDrag: setupClusterDrag,
   clusters: clusters,
   clusterColors: clusterColors
 };

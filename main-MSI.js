@@ -486,52 +486,16 @@ function initializeGraph(nodes, edges) {
     }
   });
 
-  // Ctrl+drag to move cluster (multi-cluster mode)
-  let isDraggingCluster = false;
-  let dragStartPos = null;
-  let clusterNodes = [];
-  let dragClusterColor = null;
+  // Enable cluster dragging via clusterControl utility
+  function getColorClusterNodes(node) {
+    const color = node.style('background-color');
+    return cy
+      .nodes()
+      .filter(n => n.hasClass('cluster-color') && n.style('background-color') === color && n.id() !== node.id())
+      .toArray();
+  }
 
-  cy.on('grab', 'node', function(evt) {
-    if (window.event && window.event.ctrlKey) {
-      // Find the color of the cluster this node belongs to
-      let nodeColor = evt.target.style('background-color');
-      // Find all nodes in this cluster (same color and class)
-      clusterNodes = cy.nodes().filter(n => n.hasClass('cluster-color') && n.style('background-color') === nodeColor && n.id() !== evt.target.id());
-      if (clusterNodes.length > 0) {
-        isDraggingCluster = true;
-        dragStartPos = evt.target.position();
-        dragClusterColor = nodeColor;
-        clusterNodes.forEach(n => {
-          n.scratch('_offset', {
-            x: n.position('x') - dragStartPos.x,
-            y: n.position('y') - dragStartPos.y
-          });
-        });
-      }
-    }
-  });
-
-  cy.on('drag', 'node', function(evt) {
-    if (isDraggingCluster && dragStartPos) {
-      const node = evt.target;
-      const newPos = node.position();
-      clusterNodes.forEach(n => {
-        const offset = n.scratch('_offset');
-        n.position({ x: newPos.x + offset.x, y: newPos.y + offset.y });
-      });
-    }
-  });
-
-  cy.on('free', 'node', function(evt) {
-    if (isDraggingCluster) {
-      isDraggingCluster = false;
-      dragStartPos = null;
-      clusterNodes.forEach(n => n.removeScratch('_offset'));
-      clusterNodes = [];
-      dragClusterColor = null;
-    }
-  });
+  window.clusterControl.setupDrag(cy, getColorClusterNodes);
 
 
   // Hide info panel and clear highlights on background click
