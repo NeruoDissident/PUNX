@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Band-Member Network</title>
+  <link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+<div id="searchContainer"><input id="searchInput" type="text" placeholder="Search node…"></div>
+<div id="infoPanel"></div>
+<div id="cy"></div>
+<script src="https://unpkg.com/cytoscape@3.23.0/dist/cytoscape.min.js"></script>
+<script src="https://unpkg.com/cytoscape-astar/cytoscape-astar.js"></script>
+<script src="data.js"></script>
+<script src="main.js?v=1.1"></script>
+<script src="depthControl.js"></script>
+<script src="clusterControl.js"></script>
+<script src="showOnlyControl.js"></script>
+<script>
+  // Wait for DOM and data.js to load, then initialize the graph
+  window.addEventListener('DOMContentLoaded', function() {
+    if (window.nodes && window.edges && window.initializeGraph) {
+      initializeGraph(window.nodes, window.edges);
+    } else {
+      // Fallback in case scripts load out of order
+      setTimeout(function() {
+        initializeGraph(window.nodes, window.edges);
+      }, 100);
+    }
+  });
+</script>
+</body>
+</html>
