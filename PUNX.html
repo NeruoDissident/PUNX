@@ -4,12 +4,14 @@
   <meta charset="UTF-8">
   <title>Band-Member Network</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 </head>
 <body>
 <div id="searchContainer"><input id="searchInput" type="text" placeholder="Search node…"></div>
 <div id="infoPanel"></div>
 <div id="cy"></div>
+<div id="map"></div>
 <script src="https://unpkg.com/cytoscape@3.23.0/dist/cytoscape.min.js"></script>
 <script src="https://unpkg.com/cytoscape-astar/cytoscape-astar.js"></script>
 <script src="data.js"></script>
@@ -17,15 +19,19 @@
 <script src="depthControl.js"></script>
 <script src="clusterControl.js"></script>
 <script src="showOnlyControl.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="mapView.js"></script>
 <script>
   // Wait for DOM and data.js to load, then initialize the graph
   window.addEventListener('DOMContentLoaded', function() {
-    if (window.nodes && window.edges && window.initializeGraph) {
+    if (window.nodes && window.edges && window.initializeGraph && window.mapView) {
       initializeGraph(window.nodes, window.edges);
+      mapView.init(window.nodes, window.edges);
     } else {
       // Fallback in case scripts load out of order
       setTimeout(function() {
-        initializeGraph(window.nodes, window.edges);
+        if (window.initializeGraph) initializeGraph(window.nodes, window.edges);
+        if (window.mapView) mapView.init(window.nodes, window.edges);
       }, 100);
     }
   });
