@@ -278,6 +278,26 @@ function initializeGraph(nodes, edges) {
     })
     .update();
 
+  // Add Show Only Highlighted toggle button
+  let showOnlyHighlightedBtn = document.getElementById('showOnlyHighlightedBtn');
+  if (!showOnlyHighlightedBtn) {
+    showOnlyHighlightedBtn = document.createElement('button');
+    showOnlyHighlightedBtn.id = 'showOnlyHighlightedBtn';
+    showOnlyHighlightedBtn.textContent = 'Show Only Highlighted';
+    showOnlyHighlightedBtn.style.position = 'absolute';
+    showOnlyHighlightedBtn.style.top = '10px';
+    showOnlyHighlightedBtn.style.right = '370px';
+    showOnlyHighlightedBtn.style.zIndex = 1001;
+    showOnlyHighlightedBtn.style.padding = '6px 16px';
+    showOnlyHighlightedBtn.style.background = '#fff';
+    showOnlyHighlightedBtn.style.border = '1px solid #aaa';
+    showOnlyHighlightedBtn.style.borderRadius = '6px';
+    showOnlyHighlightedBtn.style.cursor = 'pointer';
+    showOnlyHighlightedBtn.style.fontWeight = 'bold';
+    showOnlyHighlightedBtn.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+    document.body.appendChild(showOnlyHighlightedBtn);
+  }
+
   exportBtn.onclick = function() {
     const pngData = cy.png({scale: 2, full: false, bg: '#fff'});
     const link = document.createElement('a');
@@ -293,6 +313,23 @@ function initializeGraph(nodes, edges) {
   let customPaths = [];
   let pathColor = null;
   let pathSelection = [];
+
+  // Show Only Highlighted logic
+  let showOnlyHighlighted = false;
+  showOnlyHighlightedBtn.onclick = function() {
+    showOnlyHighlighted = !showOnlyHighlighted;
+    showOnlyHighlightedBtn.style.background = showOnlyHighlighted ? '#ffe58f' : '#fff';
+    if (showOnlyHighlighted) {
+      let highlightedIds = new Set();
+      clusters.forEach(c => c.nodes.forEach(ele => highlightedIds.add(ele.id())));
+      customPaths.forEach(p => p.elements.forEach(ele => highlightedIds.add(ele.id())));
+      cy.elements().forEach(ele => {
+        if (!highlightedIds.has(ele.id())) ele.hide();
+      });
+    } else {
+      cy.elements().forEach(ele => ele.show());
+    }
+  };
 
   // Restore Clear All to only clear clusters
   clearBtn.onclick = function() {
@@ -312,6 +349,8 @@ function initializeGraph(nodes, edges) {
     if (window.showOnlyControl && window.showOnlyControl.update) window.showOnlyControl.update(cy);
 
     showOnly = false;
+    if (showOnlyHighlightedBtn) showOnlyHighlightedBtn.style.background = '#fff';
+    showOnlyHighlighted = false;
   };
 
   // Track cluster memberships per node
@@ -429,6 +468,16 @@ function initializeGraph(nodes, edges) {
     }
     infoPanel.innerHTML = html;
     infoPanel.style.display = 'block';
+  });
+
+  // When clicking a node that belongs to multiple clusters, focus its most recent cluster
+  cy.on('tap', 'node', function(evt) {
+    const node = evt.target;
+    const id = node.id();
+    if ((nodeClusters[id] || []).length > 1) {
+      focusedClusterIdx = nodeClusters[id][nodeClusters[id].length - 1].clusterIdx;
+      updateNodeColors();
+    }
   });
 
   // Initialize depth controls
