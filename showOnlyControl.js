@@ -2,6 +2,8 @@
 // Handles the 'Show Only Highlighted' button functionality
 
 let showOnly = false;
+let is3DView = false;
+let cyRef = null;
 
 // showOnlyControl.js
 
@@ -46,6 +48,9 @@ function addShowOnlyControls(container) {
   controlGroup.style.gap = '6px';
 
   controlGroup.innerHTML = `
+    <button id="toggle3dBtn" style="padding: 7px 12px; background: #9C27B0; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; white-space: nowrap; width: 100%;">
+      3D View
+    </button>
     <button id="showOnlyBtn" style="padding: 7px 12px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; white-space: nowrap; width: 100%;">
       Show Only Clusters
     </button>
@@ -66,12 +71,29 @@ function createShowOnlyUI() {
 }
 
 function initShowOnlyControl(cy) {
+  cyRef = cy;
   createShowOnlyUI();
   
   // Setup event handlers
+  const toggle3dBtn = document.getElementById('toggle3dBtn');
   const showBtn = document.getElementById('showOnlyBtn');
   const clearBtn = document.getElementById('clearHighlightsBtn');
   const clearClustersBtn = document.getElementById('clearClustersBtn');
+
+  if (toggle3dBtn) {
+    toggle3dBtn.onclick = function() {
+      is3DView = !is3DView;
+      if (is3DView) {
+        if (window.graph3D) window.graph3D.show(cyRef);
+        document.getElementById('cy').style.display = 'none';
+        toggle3dBtn.textContent = '2D View';
+      } else {
+        if (window.graph3D) window.graph3D.hide();
+        document.getElementById('cy').style.display = 'block';
+        toggle3dBtn.textContent = '3D View';
+      }
+    };
+  }
   
   if (showBtn) {
     showBtn.onclick = function() {
