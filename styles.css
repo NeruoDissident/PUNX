@@ -1,7 +1,29 @@
 /* styles.css */
-body { margin: 0; font-family: Arial, sans-serif; }
-#cy { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; }
-#map { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; display: none; }
+body { 
+  margin: 0; 
+  font-family: Arial, sans-serif; 
+  overflow: hidden;
+}
+
+#cy { 
+  width: 100vw; 
+  height: 100vh; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  z-index: 1;
+}
+
+#map { 
+  width: 100vw; 
+  height: 100vh; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  display: none; 
+  z-index: 2;
+}
+
 #infoPanel {
   position: absolute;
   top: 10px;
@@ -16,8 +38,27 @@ body { margin: 0; font-family: Arial, sans-serif; }
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   z-index: 9999;
 }
-#infoPanel h3 { margin-top: 0; font-size: 16px; }
-#infoPanel p { margin: 4px 0; font-size: 13px; }
+
+#infoPanel h3 { 
+  margin-top: 0; 
+  font-size: 16px; 
+}
+
+#infoPanel p { 
+  margin: 4px 0; 
+  font-size: 13px; 
+}
+
+#infoPanel ul {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+
+#infoPanel li {
+  font-size: 12px;
+  margin: 2px 0;
+}
+
 .tooltip {
   position: fixed;
   background: #222;
@@ -28,17 +69,21 @@ body { margin: 0; font-family: Arial, sans-serif; }
   pointer-events: none;
   z-index: 9999;
 }
+
 #clearAllBtn {
   transition: background 0.2s, box-shadow 0.2s;
 }
+
 #clearAllBtn:hover {
   background: #eee;
   box-shadow: 0 4px 16px rgba(0,0,0,0.13);
 }
+
 .cy-node.cluster-color, .cluster-color {
   box-shadow: 0 0 0 3px #0002;
   border: 2px solid #4442;
 }
+
 #searchContainer {
   position: absolute;
   top: 10px;
@@ -49,6 +94,7 @@ body { margin: 0; font-family: Arial, sans-serif; }
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
+
 #searchInput {
   padding: 4px 6px;
   font-size: 12px;
@@ -56,12 +102,27 @@ body { margin: 0; font-family: Arial, sans-serif; }
   border: 1px solid #ccc;
   border-radius: 3px;
 }
+
 .highlight {
   border-width: 3;
   border-color: #16A085;
   background-color: #16A085 !important;
 }
+
 .faded {
   opacity: 0.15;
+  text-opacity: 0.1;
+}
+
+.search-highlight {
+  border-width: 6;
+  border-color: #36cfc9;
+  background-color: #36cfc9;
+  color: #fff;
+  z-index: 9999;
+}
+
+.search-faded {
+  opacity: 0.1;
   text-opacity: 0.1;
 }

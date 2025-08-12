@@ -175,7 +175,5 @@ window.clusterControl = {
   hide: hideClusterButton,
   createCluster: createCluster,
   setupEvents: setupClusterEvents,
-  setupDrag: setupClusterDrag,
-  clusters: clusters,
-  clusterColors: clusterColors
+  setupDrag: setupClusterDrag
 };
