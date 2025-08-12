@@ -6,6 +6,12 @@
     if(!div){
       div = document.createElement('div');
       div.id = 'map';
+      div.style.width = '100vw';
+      div.style.height = '100vh';
+      div.style.position = 'absolute';
+      div.style.top = '0';
+      div.style.left = '0';
+      div.style.display = 'none';
       document.body.appendChild(div);
     }
     return div;
@@ -34,47 +40,74 @@
   }
 
   function init(nodes, edges){
-    const container = createMapContainer();
-    map = L.map(container).setView([20,0], 2);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    markerLayer = L.layerGroup().addTo(map);
-    edgeLayer = L.layerGroup().addTo(map);
-
-    const lookup = {};
-    nodes.forEach(n => {
-      lookup[n.data.id] = n.data;
-      if(typeof n.data.lat === 'number' && typeof n.data.lon === 'number'){
-        const marker = L.circleMarker([n.data.lat, n.data.lon], {radius:5, color:'#3388ff', fillOpacity:0.8});
-        marker.bindPopup(n.data.id);
-        markerLayer.addLayer(marker);
+    try {
+      const container = createMapContainer();
+      
+      // Check if Leaflet is available
+      if (typeof L === 'undefined') {
+        console.error('Leaflet is not loaded');
+        return;
       }
-    });
+      
+      map = L.map(container).setView([20,0], 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
 
-    edges.forEach(e => {
-      const s = lookup[e.data.source];
-      const t = lookup[e.data.target];
-      if(s && t && s.lat != null && t.lat != null){
-        L.polyline([[s.lat, s.lon],[t.lat, t.lon]], {color:'#666', weight:1}).addTo(edgeLayer);
+      markerLayer = L.layerGroup().addTo(map);
+      edgeLayer = L.layerGroup().addTo(map);
+
+      const lookup = {};
+      if (nodes && Array.isArray(nodes)) {
+        nodes.forEach(n => {
+          if (n && n.data) {
+            lookup[n.data.id] = n.data;
+            if(typeof n.data.lat === 'number' && typeof n.data.lon === 'number'){
+              const marker = L.circleMarker([n.data.lat, n.data.lon], {radius:5, color:'#3388ff', fillOpacity:0.8});
+              marker.bindPopup(n.data.id);
+              markerLayer.addLayer(marker);
+            }
+          }
+        });
       }
-    });
 
-    createToggleButton();
+      if (edges && Array.isArray(edges)) {
+        edges.forEach(e => {
+          if (e && e.data) {
+            const s = lookup[e.data.source];
+            const t = lookup[e.data.target];
+            if(s && t && s.lat != null && t.lat != null){
+              L.polyline([[s.lat, s.lon],[t.lat, t.lon]], {color:'#666', weight:1}).addTo(edgeLayer);
+            }
+          }
+        });
+      }
+
+      createToggleButton();
+    } catch (error) {
+      console.error('Error initializing map:', error);
+    }
   }
 
   function toggleView(){
-    visible = !visible;
-    const mapDiv = document.getElementById('map');
-    const cyDiv = document.getElementById('cy');
-    if(mapDiv && cyDiv){
-      mapDiv.style.display = visible ? 'block' : 'none';
-      cyDiv.style.display = visible ? 'none' : 'block';
-      if(visible){ map.invalidateSize(); }
+    try {
+      visible = !visible;
+      const mapDiv = document.getElementById('map');
+      const cyDiv = document.getElementById('cy');
+      if(mapDiv && cyDiv){
+        mapDiv.style.display = visible ? 'block' : 'none';
+        cyDiv.style.display = visible ? 'none' : 'block';
+        if(visible && map){ 
+          setTimeout(() => {
+            map.invalidateSize(); 
+          }, 100);
+        }
+      }
+      const btn = document.getElementById('toggleMapBtn');
+      if(btn) btn.textContent = visible ? 'Graph View' : 'Map View';
+    } catch (error) {
+      console.error('Error toggling view:', error);
     }
-    const btn = document.getElementById('toggleMapBtn');
-    if(btn) btn.textContent = visible ? 'Graph View' : 'Map View';
   }
 
   window.mapView = { init };

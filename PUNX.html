@@ -24,16 +24,27 @@
 <script>
   // Wait for DOM and data.js to load, then initialize the graph
   window.addEventListener('DOMContentLoaded', function() {
-    if (window.nodes && window.edges && window.initializeGraph && window.mapView) {
-      initializeGraph(window.nodes, window.edges);
-      mapView.init(window.nodes, window.edges);
-    } else {
-      // Fallback in case scripts load out of order
-      setTimeout(function() {
-        if (window.initializeGraph) initializeGraph(window.nodes, window.edges);
-        if (window.mapView) mapView.init(window.nodes, window.edges);
-      }, 100);
-    }
+    // Add a small delay to ensure all scripts are loaded
+    setTimeout(function() {
+      try {
+        if (window.nodes && window.edges && window.initializeGraph) {
+          console.log('Initializing graph with', window.nodes.length, 'nodes and', window.edges.length, 'edges');
+          window.initializeGraph(window.nodes, window.edges);
+          
+          if (window.mapView && window.mapView.init) {
+            window.mapView.init(window.nodes, window.edges);
+          }
+        } else {
+          console.error('Required data or functions not available:', {
+            nodes: !!window.nodes,
+            edges: !!window.edges,
+            initializeGraph: !!window.initializeGraph
+          });
+        }
+      } catch (error) {
+        console.error('Error during initialization:', error);
+      }
+    }, 100);
   });
 </script>
 </body>
